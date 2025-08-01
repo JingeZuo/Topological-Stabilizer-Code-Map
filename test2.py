@@ -3,33 +3,42 @@ from itertools import combinations
 import numpy as np
 from z3 import *
 from functools import reduce
-def commute(a, b, init_val=False):
-    indices = [(i, (i+9) % 18) for i in (5,7,14,16)]+[(i, (i+7) % 14) for i in (2,4,9,11)]+[(i,i+1) for i in (17,18,19,20)]+[(i+1,i) for i in (17,18,19,20)]
+def commute(a, b, init_val):
+    indices = ([(i, (i+9) % 18) for i in (5,7,14,16)]+[(i, (i+7) % 14) for i in (2,4,9,11)]+
+               [(i,i+1) for i in (17,19,21,23,25,27,29,31,33,35,37,39,41,43,45,47,49,51,53,55)]+[(i+1,i) for i in (17,19,21,23,25,27,29,31,33,35,37,39,41,43,45,47,49,51,53,55)])
     terms = []
     for i, j in indices:
         if j < len(b):  # 确保不会越界
             terms.append(And(a[i-1], b[j-1]))
     return reduce(Xor, terms, init_val)
 br=[
-    [7,11],
-    [1,15],
     [6,10],
-    [0,11],
-    [3,15],
     [0,14],
     [0,12],
-    [1,11],
+    [7,9],
+    [5,9],
+    [6,8],
+[0,15],
+[2,15]
+]
+br1=[
+    [6,10],
+    [0,14],
+    [0,12],
     [7,9],
     [6,15],
     [5,15],
     [4,15],
-    [2,11],
     [5,9],
-    [6,8]]
+    [6,8],
+[0,15],
+[7,15],
+[2,15]
+]
 def op(br):
     # 参数设置
     k = 16
-    n = 24
+    n = 56
     X = [[Bool(f'x{i}_{j}') for j in range(n)] for i in range(k)]
     target_add = []
     char = [
@@ -42,10 +51,10 @@ def op(br):
         [1, 2],
         [5, 6]
     ]
-    stab = [[1, 2, 3, 4, 13, 14, 15, 16, 17],
-            [5, 6, 7, 8, 9, 10, 11, 12, 18],
-            [1, 2, 3, 4, 19],
-            [5, 6, 7, 8, 20]]
+    stab = [[1, 2, 3, 4, 13, 14, 15, 16, 18,26,34,42,50],
+            [5, 6, 7, 8, 9, 10, 11, 12, 20,28,36,44,52],
+            [1, 2, 3, 4, 22,30,38,46,54],
+            [5, 6, 7, 8, 24,32,40,48,56]]
     CCchar = [[1, 3],
               [9, 11],
               [1, 2],
@@ -142,7 +151,8 @@ def op(br):
             print("No commute constraint is in the unsat core. Conflict comes from non-commute constraints.")
 
     print(len(br))
-
+op(br)
+#%%
 def remove_nth_to_new_list(lst, n):
     """
     从列表中删除第 n 个元素（n 从 1 开始），返回一个新列表，原列表不变。
@@ -161,6 +171,7 @@ def remove_nth_to_new_list(lst, n):
     return lst[:n - 1] + lst[n:]
 for i in range(len(br)):
     op(remove_nth_to_new_list(br,i+1))
+    print(i+1)
 #%%
 result = [[x+1, y+1] for x, y in br]
 # 逐行输出
